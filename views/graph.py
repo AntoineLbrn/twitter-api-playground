@@ -4,70 +4,71 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import json
 import random
-
-
+from networkx.drawing.nx_pydot import write_dot
 G = nx.empty_graph()
 
-communities_by_id = {}
-kc_followers = []
-popcorn_followers = []
 
-with open("popcorn_followers_december_2022.json", "r") as f:
-    popcorn_followers = json.load(f)
-    for id in popcorn_followers:
-        if id in communities_by_id:
-            communities_by_id[id].append("Popcorn")
-        else:
-            communities_by_id[id] = ["Popcorn"]
+# ForceAtlas2 is a force directed layout: it simulates a physical system in order to spatialize a network. Nodes repulse each other like charged particles, while edges attract their nodes, like springs. These forces create a movement that converges to a balanced state.
 
-with open("kc_followers_december_2022.json", "r") as f:
-    kc_followers = json.load(f)
-    for id in kc_followers:
-        if id in communities_by_id:
-            communities_by_id[id].append("KC")
-        else:
-            communities_by_id[id] = ["KC"]
+communities = {
+    "kc": {"color": "#00D8EC"},
+    "popcorn": {"color": "#E4202E"},
+    "ponce": {"color": "#FFCE01"},
+    "otp": {"color": "#E34D2E"},
+    "zevent": {"color": "#57AF37"},
+    "ultia": {"color": "pink"},
+    "sly": {"color": "yellow"},
+    #toxics, et on pourra ensuite récupérer les plus toxiques
+}
 
-intersection = list(filter(lambda item: len(item[1]) == 2, communities_by_id.items()))
+communities_by_user_id = {}
+nodes = []
 
-# print(f"Popcorn followers : {len(popcorn_followers)}")
-# print(f"KC followers : {len(kc_followers)}")
-# print(f"Intersection followers : {len(intersection)}")
+for community_name, community_info in communities.items():
+    nodes.append((community_name, {"color": community_info["color"], "size": 1}))
+    with open(f"{community_name}_followers_december_2022.json", "r") as f:
+        community_info["followers"] = json.load(f)
+        for id in community_info["followers"]:
+            if id in communities_by_user_id:
+                communities_by_user_id[id].append(community_name)
+            else:
+                communities_by_user_id[id] = [community_name]
 
-print(f"{round(100*len(intersection)/len(kc_followers),2)}% des followers KC followent popcorn")
-print(f"{round(100*len(intersection)/len(popcorn_followers),2)}% des followers popcorn followent kc")
+kc_x_popcorn = list(set(communities["kc"]["followers"]) & set(communities["popcorn"]["followers"]))
+popcorn_x_ponce = list(set(communities["ponce"]["followers"]) & set(communities["popcorn"]["followers"]))
+print(f"{100*len(kc_x_popcorn) /len(communities['popcorn']['followers']) }% des followers popcorn followent KC")
+print(f"{100*len(popcorn_x_ponce) /len(communities['popcorn']['followers']) }% des followers de popcorn followent ponce")
 
-nodes = [
-    ("Popcorn", {"color": "red", "size": 1000}),
-    ("KC", {"color": "blue", "size": 1000}),
-]
 edges = []
 
-shuffled_list = list(communities_by_id.items())
+shuffled_list = list(communities_by_user_id.items())
 random.shuffle(shuffled_list)
 
-for id, communities in shuffled_list[:2000]:
+for id, communities_membership in shuffled_list[:10000]:
     nodes += id
-    if("KC" in communities):
-        G.add_edge(id, 'KC', color= 'blue')
-    if("Popcorn" in communities):
-        G.add_edge(id, 'Popcorn', color= 'red')
+    for community_membership in communities_membership:
+        G.add_edge(id, community_membership, color=communities[community_membership]["color"])
 
 G.add_nodes_from(nodes)
 
 
 colored_dict = nx.get_node_attributes(G, 'color')
-default_color = 'pink'
+default_color = 'black'
 color_seq = [colored_dict.get(node, default_color) for node in G.nodes()]
 
 sized_dict = nx.get_node_attributes(G, 'size')
-default_size = 1
+default_size = 0.1
 size_seq = [sized_dict.get(node, default_size) for node in G.nodes()]
 
-edge_colors = nx.get_edge_attributes(G,'color').values()
+edge_colors = nx.get_edge_attributes(G, 'color').values()
 
 print("Drawing graph...")
-nx.draw(G, with_labels=False, node_color= color_seq, node_size= size_seq, edge_color= edge_colors)
+
+fig = plt.figure()
+nx.write_gexf(G, "views/graph.gexf")
+
+#nx.draw(G, with_labels=False, node_color=color_seq, alpha=0.2, node_size=size_seq, edge_color=edge_colors)
+fig.set_facecolor("#00000F")
 
 print("Showing graph...")
-plt.show()
+#plt.show()
