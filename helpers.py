@@ -9,7 +9,7 @@ ultia_twitter_id = 1940911441
 sly_twitter_id = 920621546619760640
 mv_twitter_id = 544902207
 
-token = "AAAAAAAAAAAAAAAAAAAAAG29kAEAAAAAtxB0w%2BClJ2%2FdGmPQU7TWpxqBeWU%3DITm2RhcfZKjqu98UMxnKS9PPzELmRQ19DR5n95nP4rL2fZeqV1"
+token = None
 headers = {"Authorization": f"Bearer {token}"}
 
 def fetch(url, params= None):
