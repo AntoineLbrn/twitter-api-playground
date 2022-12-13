@@ -16,6 +16,9 @@ communities = {
     "ponce": {"color": "#FFCE01"},
     "otp": {"color": "#E34D2E"},
     "zevent": {"color": "#57AF37"},
+    "ultia": {"color": "pink"},
+    "sly": {"color": "yellow"},
+    "mv": {"color": "grey"},
 }
 
 communities_by_user_id = {}

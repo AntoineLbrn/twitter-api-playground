@@ -18,6 +18,7 @@ communities = {
     "zevent": {"color": "#57AF37"},
     "ultia": {"color": "pink"},
     "sly": {"color": "yellow"},
+    "mv": {"color": "grey"},
     #toxics, et on pourra ensuite récupérer les plus toxiques
 }
 
